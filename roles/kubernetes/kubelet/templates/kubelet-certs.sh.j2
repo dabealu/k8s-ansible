@@ -1,0 +1,8 @@
+#!/bin/bash -e
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname={{ ansible_hostname }},{{ ansible_fqdn }},{{ ansible_default_ipv4.address }} \
+  -profile=kubernetes kubelet-csr.json | cfssljson -bare kubelet

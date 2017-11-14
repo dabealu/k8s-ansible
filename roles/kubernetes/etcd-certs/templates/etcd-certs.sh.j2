@@ -1,0 +1,8 @@
+#!/bin/bash -e
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname={{ ansible_default_ipv4.address }},{{ ansible_hostname }},{{ ansible_fqdn }},127.0.0.1,localhost \
+  -profile=kubernetes etcd-csr.json | cfssljson -bare etcd

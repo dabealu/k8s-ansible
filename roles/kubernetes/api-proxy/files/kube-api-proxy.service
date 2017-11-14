@@ -1,0 +1,17 @@
+[Unit]
+Description=nginx kube API proxy
+Wants=docker.socket
+After=docker.service
+
+[Service]
+User=root
+PermissionsStartOnly=true
+ExecStart=/usr/local/bin/kube-api-proxy.sh
+ExecStartPre=-/usr/bin/docker rm -f kube-api-proxy
+ExecStop=/usr/bin/docker stop kube-api-proxy
+Restart=always
+RestartSec=10s
+TimeoutStartSec=30s
+
+[Install]
+WantedBy=multi-user.target

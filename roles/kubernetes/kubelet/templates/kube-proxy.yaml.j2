@@ -1,0 +1,36 @@
+apiVersion: componentconfig/v1alpha1
+bindAddress: 0.0.0.0
+clientConnection:
+  acceptContentTypes: ""
+  burst: 10
+  contentType: application/vnd.kubernetes.protobuf
+  kubeconfig: /etc/kubernetes/kube-proxy.kubeconfig
+  qps: 5
+clusterCIDR: {{ cluster_cidr }}
+configSyncPeriod: 15m0s
+conntrack:
+  max: 0
+  maxPerCore: {{ proxy_conntrack_max_per_core }}
+  min: {{ proxy_conntrack_min }}
+  tcpCloseWaitTimeout: 1h0m0s
+  tcpEstablishedTimeout: 24h0m0s
+enableProfiling: false
+featureGates: ""
+healthzBindAddress: 0.0.0.0:10256
+hostnameOverride: ""
+iptables:
+  masqueradeAll: false
+  masqueradeBit: 14
+  minSyncPeriod: 0s
+  syncPeriod: 30s
+ipvs:
+  minSyncPeriod: 0s
+  scheduler: ""
+  syncPeriod: 0s
+kind: KubeProxyConfiguration
+metricsBindAddress: 127.0.0.1:10249
+mode: iptables
+oomScoreAdj: -999
+portRange: ""
+resourceContainer: /kube-proxy
+udpTimeoutMilliseconds: 250ms

@@ -1,0 +1,25 @@
+- name: create admin CSR and script to generate admin certs
+  copy: src={{ item.file }} dest=/etc/kubernetes/ssl/{{ item.file }} mode={{ item.mode }}
+  with_items:
+  - { "file": admin-csr.json, "mode": 664 }
+  - { "file": admin-certs.sh, "mode": 755 }
+  
+- name: create API server CSR
+  copy: src=kubernetes-csr.json dest=/etc/kubernetes/ssl/kubernetes-csr.json
+
+- name: create script to generate API server certs
+  template: src=api-server-certs.sh.j2 dest=/etc/kubernetes/ssl/api-server-certs.sh mode=0755
+
+- name: generate admin and API server certs
+  shell: ./{{ item }}
+  args:
+    chdir: /etc/kubernetes/ssl
+  with_items:
+  - admin-certs.sh
+  - api-server-certs.sh
+
+- name: ensure /root/.kube dir exist
+  file: state=directory path=/root/.kube
+
+- name: create admin kubeconfig for root
+  copy: src=admin-kubeconfig dest=/root/.kube/config mode=600

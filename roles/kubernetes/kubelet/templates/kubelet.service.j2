@@ -1,0 +1,39 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/kubernetes/kubernetes
+After=docker.service
+Wants=docker.socket
+
+[Service]
+ExecStart=/usr/local/bin/kubelet \
+  --v=2 \
+  --address=0.0.0.0 \
+  --hostname-override={{ ansible_hostname }} \
+  --allow-privileged=true \
+  --anonymous-auth=false \
+  --authorization-mode=Webhook \
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --pod-manifest-path=/etc/kubernetes/manifests \
+  --pod-infra-container-image=gcr.io/google_containers/pause-amd64:3.0 \
+  --kube-reserved cpu=100m,memory=512M \
+  --node-status-update-frequency=10s \
+  --cgroups-per-qos=True \
+  --cluster-dns={{ cluster_dns }} \
+  --cluster-domain=cluster.local \
+  --resolv-conf=/etc/resolv.conf \
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+  {% if ansible_hostname in groups['k8s_masters'] -%}
+  --node-labels=node-role.kubernetes.io/master=true,node-role.kubernetes.io/node=true \
+  {% else -%}
+  --node-labels=node-role.kubernetes.io/node=true \
+  {% endif -%}
+  --network-plugin=cni \
+  --cni-bin-dir=/opt/cni/bin \
+  --tls-cert-file=/etc/kubernetes/ssl/kubelet.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/kubelet-key.pem
+
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

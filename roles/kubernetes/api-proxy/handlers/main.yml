@@ -1,0 +1,5 @@
+- name: daemon_reload
+  systemd: daemon_reload=yes
+  
+- name: restart_api_proxy
+  systemd: name=kube-api-proxy state=restarted

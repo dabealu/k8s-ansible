@@ -1,0 +1,17 @@
+###
+# example inventory file
+###
+
+node-1 ansible_host=192.168.88.11 ansible_password=1
+node-2 ansible_host=192.168.88.12 ansible_password=1
+node-3 ansible_host=192.168.88.13 ansible_password=1
+
+[k8s_masters]
+node-1
+node-2
+node-3
+
+[k8s_workers]
+node-1
+node-2
+node-3

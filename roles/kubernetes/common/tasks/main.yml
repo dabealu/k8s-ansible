@@ -1,0 +1,86 @@
+- name: install common packages
+  apt: name={{ item }} state=present
+  with_items:
+  - apt-transport-https
+  - bash-completion
+  - ca-certificates
+  - curl
+  - software-properties-common
+  - socat
+  - vim
+  - tree
+  - tmux
+  - wget
+  - iotop
+  - iftop
+  - htop
+  - unattended-upgrades
+  - python-pip
+  - python-apt
+  - rsync
+
+- name: gen locale(s)
+  locale_gen: name={{ item }} state=present
+  with_items:
+  - "{{ gen_locales }}"
+
+- name: set timezone to {{ timezone }}
+  timezone: name={{ timezone }}
+  notify:
+  - restart_cron
+
+- name: sync time with ntp
+  template: src=timesyncd.conf.j2 dest=/etc/systemd/timesyncd.conf
+  notify:
+  - restart_timesyncd
+
+- name: set journald storage to persistent
+  lineinfile: line='Storage=persistent' insertafter='^[Journal]' dest=/etc/systemd/journald.conf
+  notify: restart_journald
+
+- name: disable swap
+  shell: |
+    #!/bin/bash -e
+    swapoff -a &&\
+    umount $(grep swap /etc/fstab | awk '{print $1}') || true &&\
+    sed 's/^[^#]\(.*\)swap\(.*\)$/#\1swap\2/g' -i /etc/fstab
+    
+- name: add all cluster nodes to /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    insertafter: EOF
+    marker: "# {mark} k8s cluster hosts"
+    block: |
+      {% for host in groups['all'] %}
+      {% set hostname = hostvars[host]['ansible_hostname'] %}
+      {{ hostvars[host]['ansible_default_ipv4']['address'] }} {{ hostname }} {{ hostname }}.cluster.local {{ hostvars[host]['ansible_fqdn'] }}
+      {% endfor %}
+
+- name: create directory /etc/kubernetes
+  file: path=/etc/kubernetes state=directory recurse=yes
+
+- name: script to get kubernetes component versions
+  copy: src=component-version.sh dest=/etc/kubernetes/component-version.sh mode=0755
+
+- name: get cfssl
+  get_url: dest=/usr/local/bin/{{ item.dest }} url={{ item.url }} mode=0755 force=yes
+  with_items:
+  - { dest: "cfssl", url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64" }
+  - { dest: "cfssljson", url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64" }
+
+- name: get current kubectl version
+  shell: /etc/kubernetes/component-version.sh kubectl
+  register: current_kubectl_v
+
+- debug: msg="current_kubectl_v={{ current_kubectl_v.stdout }}"
+
+- name: get kubectl
+  get_url:
+    dest: /usr/local/bin/kubectl
+    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kubectl
+    mode: 0755
+    force: yes
+  when: current_kubectl_v.stdout != kubernetes_version
+  
+- name: enable kubectl bash completion
+  shell: kubectl completion bash > /etc/bash_completion.d/kubectl

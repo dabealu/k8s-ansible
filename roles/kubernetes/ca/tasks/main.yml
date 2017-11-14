@@ -1,0 +1,48 @@
+- name: create directory /etc/kubernetes/ssl
+  file: path=/etc/kubernetes/ssl state=directory recurse=yes
+
+- name: create CA config and CSR
+  copy: src={{ item }} dest=/etc/kubernetes/ssl/{{ item }}
+  with_items:
+  - ca-config.json
+  - ca-csr.json
+
+# generate ca/ca-key on k8s_masters[0] node
+- name: check existence of ca.pem on {{ groups.k8s_masters[0] }}
+  stat: path=/etc/kubernetes/ssl/ca.pem
+  register: ca_pem
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true
+    
+- name: check existence of ca-key.pem on {{ groups.k8s_masters[0] }}
+  stat: path=/etc/kubernetes/ssl/ca-key.pem
+  register: ca_key_pem
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true
+  
+- name: generate ca.pem and ca-key.pem
+  shell: cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+  args:
+    chdir: /etc/kubernetes/ssl
+  when: ca_pem.stat.exists == False and ca_key_pem.stat.exists == False
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true
+  
+- name: get content of ca.pem from {{ groups.k8s_masters[0] }}
+  shell: cat /etc/kubernetes/ssl/ca.pem
+  register: ca_content
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true
+    
+- name: get content of ca-key.pem from {{ groups.k8s_masters[0] }}
+  shell: cat /etc/kubernetes/ssl/ca-key.pem
+  register: ca_key_content
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true
+
+# distribute ca/ca-key to other nodes
+- name: create ca/ca-key on all masters
+  template: src={{ item.name }}.j2 dest=/etc/kubernetes/ssl/{{ item.name }} mode={{ item.mode }}
+  with_items:
+  - { name: "ca.pem", mode: "0644" }
+  - { name: "ca-key.pem", mode: "0600" }

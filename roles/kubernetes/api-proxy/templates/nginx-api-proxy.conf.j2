@@ -1,0 +1,24 @@
+user nginx;
+worker_processes 4;
+
+error_log /var/log/nginx/error.log warn;
+pid       /var/run/nginx.pid;
+
+events {
+  worker_connections 2048;
+}
+
+
+stream {
+  upstream backends {
+    least_conn;
+    {% for host in groups['k8s_masters'] -%}
+    server {{ hostvars[host]['ansible_default_ipv4']['address'] }}:6443 max_fails=1 fail_timeout=10s;
+    {% endfor %} 
+  }
+
+  server {
+    listen     127.0.0.1:{{ kube_api_proxy_port }};
+    proxy_pass backends;
+  }
+}

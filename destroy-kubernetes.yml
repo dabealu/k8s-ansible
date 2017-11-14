@@ -1,0 +1,18 @@
+###
+# for testing purposes only !!!
+# perform some cleanup of cluster nodes
+###
+
+- name: basic
+  hosts: all
+  user: root
+  tasks:
+  - name: tear down cluster
+    shell: |
+      for SVC in etcd etcd-gateway kube-api-proxy kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager; do
+        systemctl stop $SVC
+        rm -f /etc/systemd/system/$SVC.service
+      done
+      docker rm -f $(docker ps -q)
+      systemctl daemon-reload
+      rm -rf /var/lib/etcd /etc/kubernetes

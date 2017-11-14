@@ -1,0 +1,40 @@
+- name: install python
+  hosts: all
+  user: root
+  gather_facts: no
+  tasks:
+  - raw: apt-get update -qq && apt-get install python -y
+    args:
+      executable: /bin/bash
+  
+- name: basic
+  hosts: all
+  user: root
+  vars_files:
+  - variables/k8s-global.yml
+  roles:
+  - kubernetes/common
+  - kubernetes/docker
+  - kubernetes/ca
+  - kubernetes/etcd-certs
+  - kubernetes/etcd-gateway
+  - kubernetes/api-proxy
+  
+- name: masters
+  hosts: k8s_masters
+  user: root
+  vars_files:
+  - variables/k8s-global.yml
+  roles:
+  - kubernetes/masters-certs
+  - kubernetes/etcd-server
+  - kubernetes/control-plane
+  - kubernetes/cni-dns
+
+- name: workers
+  hosts: k8s_workers
+  user: root
+  vars_files:
+  - variables/k8s-global.yml
+  roles:
+  - kubernetes/kubelet

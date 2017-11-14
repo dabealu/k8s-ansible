@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export ETCDCTL_API=3
+
+# check is this node already in cluster or not
+etcdctl \
+  --cert /etc/kubernetes/ssl/etcd.pem \
+  --key /etc/kubernetes/ssl/etcd-key.pem \
+  --cacert /etc/kubernetes/ssl/ca.pem \
+  --endpoints https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2379 \
+  member list | grep {{ ansible_default_ipv4.address }}
+
+if [[ "$?" -ne "0" ]]; then
+  # node isn't in cluster, join and start etcd
+  etcdctl \
+    --cert /etc/kubernetes/ssl/etcd.pem \
+    --key /etc/kubernetes/ssl/etcd-key.pem \
+    --cacert /etc/kubernetes/ssl/ca.pem \
+    --endpoints https://{{ hostvars[groups['k8s_masters'][0]]['ansible_default_ipv4']['address'] }}:2379 \
+    member add {{ ansible_hostname }} \
+    --peer-urls https://{{ ansible_default_ipv4.address }}:2380
+  JOIN_CODE=$?
+  systemctl daemon-reload
+  systemctl enable etcd
+  systemctl start etcd
+  exit $JOIN_CODE
+fi

@@ -1,0 +1,93 @@
+- name: create directories
+  file: dest={{ item }} state=directory recurse=yes
+  with_items:
+  - /var/lib/kubelet
+  - /etc/kubernetes/manifests
+  - /etc/cni/net.d
+  - /opt/cni/bin
+
+- name: create kubelet and kube-proxy CSRs
+  template: src={{ item }}.j2 dest=/etc/kubernetes/ssl/{{ item }}
+  with_items:
+  - kubelet-csr.json
+  - kube-proxy-csr.json
+
+- name: create script to generate kubelet and kube-proxy certs
+  template: src={{ item }}.j2 dest=/etc/kubernetes/ssl/{{ item }} mode=0755
+  with_items:
+  - kubelet-certs.sh
+  - kube-proxy-certs.sh
+  notify:
+  - restart_kubelet
+  - restart_kube_proxy
+  
+- name: generate kubelet and kube-proxy certs
+  shell: ./{{ item }}
+  with_items:
+  - kubelet-certs.sh
+  - kube-proxy-certs.sh
+  args:
+    chdir: /etc/kubernetes/ssl
+
+- name: copy scripts to generate kubeconfigs
+  template: src={{ item }}.j2 dest=/etc/kubernetes/{{ item }} mode=0755
+  with_items:
+  - kubelet-kubeconfig.sh
+  - kubeproxy-kubeconfig.sh
+  
+- name: generate kubelet and kubeproxy kubeconfigs
+  shell: ./{{ item }}
+  with_items:
+  - kubelet-kubeconfig.sh
+  - kubeproxy-kubeconfig.sh
+  args:
+    chdir: /etc/kubernetes
+
+- name: get current kubelet version
+  shell: /etc/kubernetes/component-version.sh kubelet
+  register: current_kubelet_v
+
+- name: get current kube-proxy version
+  shell: /etc/kubernetes/component-version.sh kube-proxy
+  register: current_kube_proxy_v
+
+- debug: msg="current_kubelet_v={{ current_kubelet_v.stdout }}"
+- debug: msg="current_kube_proxy_v={{ current_kube_proxy_v.stdout }}"
+
+- name: get kubelet binary
+  get_url: 
+    dest: /usr/local/bin/kubelet
+    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kubelet 
+    mode: 0755
+    force: yes
+  notify: restart_kubelet
+  when: current_kubelet_v.stdout != kubernetes_version
+  
+- name: get kube-proxy binary
+  get_url: 
+    dest: /usr/local/bin/kube-proxy
+    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kube-proxy 
+    mode: 0755
+    force: yes
+  notify: restart_kube_proxy
+  when: current_kube_proxy_v.stdout != kubernetes_version
+
+- name: create kubelet.service systemd unit
+  template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+  notify: restart_kubelet
+
+- name: create kube-proxy config
+  template: src=kube-proxy.yaml.j2 dest=/etc/kubernetes/kube-proxy.yaml
+  notify: restart_kube_proxy
+
+- name: create kube-proxy.service systemd unit
+  template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+  notify: restart_kube_proxy
+  
+- meta: flush_handlers 
+
+- name: ensure kubelet/kube-proxy is started
+  systemd: name={{ item }} state=started enabled=yes
+  with_items:
+  - kubelet
+  - kube-proxy

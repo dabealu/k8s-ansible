@@ -1,0 +1,42 @@
+- name: get current kube-apiserver version
+  shell: /etc/kubernetes/component-version.sh kube-apiserver
+  register: current_kube_apiserver_v
+
+- debug: msg="current_kube_apiserver_v={{ current_kube_apiserver_v.stdout }}"
+
+- name: get control plane binaries
+  get_url: 
+    dest: /usr/local/bin/{{ item }} 
+    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/{{ item }} 
+    mode: 0755
+    force: yes
+  with_items:
+  - kube-apiserver
+  - kube-scheduler
+  - kube-controller-manager
+  notify:
+  - restart_apiserver
+  - restart_scheduler
+  - restart_controller_manager
+  when: current_kube_apiserver_v.stdout != kubernetes_version
+
+- name: create kube-apiserver.service systemd unit
+  template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+  notify: restart_apiserver
+
+- name: create kube-scheduler.service systemd unit
+  template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
+  notify: restart_scheduler
+  
+- name: create kube-controller-manager.service systemd unit
+  template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
+  notify: restart_controller_manager
+  
+- meta: flush_handlers
+
+- name: create manifests for apiserver->kubelet authorization 
+  copy: src={{ item }}  dest=/etc/kubernetes/{{ item }}
+  with_items:
+  - apiserver-to-kubelet-cr.yaml
+  - apiserver-to-kubelet-rb.yaml
+  notify: apply_api_kubelet_auth

@@ -1,0 +1,25 @@
+- name: restart_apiserver
+  systemd: name=kube-apiserver state=restarted enabled=yes daemon_reload=yes
+
+- name: restart_scheduler
+  systemd: name=kube-scheduler state=restarted enabled=yes daemon_reload=yes
+
+- name: restart_controller_manager
+  systemd: name=kube-controller-manager state=restarted enabled=yes daemon_reload=yes
+
+- name: apply_api_kubelet_auth
+  shell: |
+    TIMEOUT=0
+    until kubectl apply -f /etc/kubernetes/{{ item }}; do
+      if [[ "$TIMEOUT" -lt "90" ]]; then
+        sleep 2
+        TIMEOUT=$(($TIMEOUT+1))
+      else
+        exit 1
+      fi
+    done
+  with_items:
+  - apiserver-to-kubelet-cr.yaml
+  - apiserver-to-kubelet-rb.yaml
+  delegate_to: "{{ groups.k8s_masters[0] }}"
+  run_once: true

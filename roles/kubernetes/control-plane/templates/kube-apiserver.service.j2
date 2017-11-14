@@ -1,0 +1,46 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-apiserver \
+  --admission-control=Initializers,NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+  --advertise-address={{ ansible_default_ipv4.address }} \
+  --allow-privileged=true \
+  --apiserver-count={{ groups['k8s_masters'] | length }} \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/audit.log \
+  --authorization-mode=Node,RBAC \
+  --bind-address=0.0.0.0 \
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --etcd-quorum-read=true \
+  --etcd-cafile=/etc/kubernetes/ssl/ca.pem \
+  --etcd-certfile=/etc/kubernetes/ssl/etcd.pem \
+  --etcd-keyfile=/etc/kubernetes/ssl/etcd-key.pem \
+  --etcd-servers=https://127.0.0.1:23790 \
+  --event-ttl=1h \
+  --insecure-bind-address=127.0.0.1 \
+  --insecure-port=8080 \
+  --secure-port=6443 \
+  --storage-backend=etcd3 \
+  --anonymous-auth=False \
+  --kubelet-certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --kubelet-client-certificate=/etc/kubernetes/ssl/kubernetes.pem \
+  --kubelet-client-key=/etc/kubernetes/ssl/kubernetes-key.pem \
+  --kubelet-https=true \
+  --runtime-config=api/all \
+  --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem \
+  --service-cluster-ip-range={{ service_cluster_ip }} \
+  --service-node-port-range={{ service_node_port_range }} \
+  --tls-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
+  --v=2
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

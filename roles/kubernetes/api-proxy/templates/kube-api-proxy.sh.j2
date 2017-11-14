@@ -1,0 +1,8 @@
+#!/bin/bash
+
+/usr/bin/docker run \
+  --restart=always \
+  --net=host \
+  --name=kube-api-proxy \
+  -v /etc/kubernetes/nginx-api-proxy.conf:/etc/nginx/nginx.conf \
+  nginx:{{ nginx_kube_api_proxy_version }}
