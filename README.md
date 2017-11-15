@@ -11,4 +11,6 @@ ansible-playbook -i hosts -u root kubernetes.yml
 ```
 It's recommended to keep quorum of etcd server nodes (k8s_masters inventory group), so 3 or 5 etcd nodes for production cluster.
   
-**TBD:** component description, api-proxy, etcd-gateway, ports, etc.
+**TBD:** 
+- component description, api-proxy, etcd-gateway, ports, etc.
+- describe cluster operations like replacement of failed master node
