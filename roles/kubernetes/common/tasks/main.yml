@@ -4,6 +4,7 @@
   - apt-transport-https
   - bash-completion
   - ca-certificates
+  - conntrack
   - curl
   - software-properties-common
   - socat
@@ -44,7 +45,7 @@
     swapoff -a &&\
     umount $(grep swap /etc/fstab | awk '{print $1}') || true &&\
     sed 's/^[^#]\(.*\)swap\(.*\)$/#\1swap\2/g' -i /etc/fstab
-    
+
 - name: add all cluster nodes to /etc/hosts
   blockinfile:
     path: /etc/hosts
@@ -81,6 +82,6 @@
     mode: 0755
     force: yes
   when: current_kubectl_v.stdout != kubernetes_version
-  
+
 - name: enable kubectl bash completion
   shell: kubectl completion bash > /etc/bash_completion.d/kubectl
