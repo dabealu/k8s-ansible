@@ -1,0 +1,21 @@
+- name: pull nginx:{{ nginx_kube_api_proxy_version }} image
+  shell: docker pull nginx:{{ nginx_kube_api_proxy_version }}
+
+- name: create kube-api-proxy systemd service
+  copy: src=kube-api-proxy.service dest=/etc/systemd/system/kube-api-proxy.service
+  notify: 
+  - daemon_reload
+  - restart_api_proxy
+
+- name: create kube-api-proxy exec script
+  template: src=kube-api-proxy.sh.j2 dest=/usr/local/bin/kube-api-proxy.sh mode=755
+  notify: restart_api_proxy
+
+- name: create nginx config
+  template: src=nginx-api-proxy.conf.j2 dest=/etc/kubernetes/nginx-api-proxy.conf
+  notify: restart_api_proxy
+  
+- meta: flush_handlers
+
+- name: ensure kube-api-proxy is started
+  systemd: name=kube-api-proxy state=started enabled=yes
