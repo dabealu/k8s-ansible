@@ -18,20 +18,13 @@
   - kubernetes/ca
   - kubernetes/api-proxy
 
-- name: etcd
-  hosts: k8s_masters
-  user: root
-  vars_files:
-  - variables/k8s-global.yml
-  roles:
-  - kubernetes/etcd
-
 - name: k8s master
   hosts: k8s_masters
   user: root
   vars_files:
   - variables/k8s-global.yml
   roles:
+  - kubernetes/etcd
   - kubernetes/masters-certs
   - kubernetes/control-plane
   - kubernetes/manifests
