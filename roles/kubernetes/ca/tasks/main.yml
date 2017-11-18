@@ -8,13 +8,13 @@
   - ca-csr.json
 
 # generate ca/ca-key on k8s_masters[0] node
-- name: check existence of ca.pem on {{ groups.k8s_masters[0] }}
+- name: check existence of ca.pem
   stat: path=/etc/kubernetes/ssl/ca.pem
   register: ca_pem
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
     
-- name: check existence of ca-key.pem on {{ groups.k8s_masters[0] }}
+- name: check existence of ca-key.pem
   stat: path=/etc/kubernetes/ssl/ca-key.pem
   register: ca_key_pem
   delegate_to: "{{ groups.k8s_masters[0] }}"
@@ -28,13 +28,13 @@
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
   
-- name: get content of ca.pem from {{ groups.k8s_masters[0] }}
+- name: get content of ca.pem
   shell: cat /etc/kubernetes/ssl/ca.pem
   register: ca_content
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
     
-- name: get content of ca-key.pem from {{ groups.k8s_masters[0] }}
+- name: get content of ca-key.pem
   shell: cat /etc/kubernetes/ssl/ca-key.pem
   register: ca_key_content
   delegate_to: "{{ groups.k8s_masters[0] }}"

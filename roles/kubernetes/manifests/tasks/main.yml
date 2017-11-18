@@ -1,25 +1,26 @@
+# calico
 - name: create calico RBAC manifest
   copy: src=calico-rbac.yaml dest=/etc/kubernetes/calico-rbac.yaml
   notify: apply_calico_rbac
 
-- debug: msg='get etcd certs as base64 strings to inject this values into calico manifest'
-  run_once: true
-
-- shell: cat ca.pem | base64 --wrap=0
+- name: get etcd ca content for calico
+  shell: cat ca.pem | base64 --wrap=0
   args:
     chdir: /etc/kubernetes/ssl
   register: calico_etcd_ca
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
 
-- shell: cat etcd.pem | base64 --wrap=0
+- name: get etcd cert content for calico
+  shell: cat etcd.pem | base64 --wrap=0
   args:
     chdir: /etc/kubernetes/ssl
   register: calico_etcd_cert
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
 
-- shell: cat etcd-key.pem | base64 --wrap=0
+- name: get etcd key content for calico
+  shell: cat etcd-key.pem | base64 --wrap=0
   args:
     chdir: /etc/kubernetes/ssl
   register: calico_etcd_key

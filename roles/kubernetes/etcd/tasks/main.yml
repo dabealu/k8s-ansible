@@ -1,0 +1,74 @@
+# get etcd binaries
+- name: get current etcd version
+  shell: /etc/kubernetes/component-version.sh etcd
+  register: current_etcd_v
+
+- debug: msg="current_etcd_v={{ current_etcd_v.stdout }}"
+
+- name: get etcd tarball
+  get_url: 
+    dest: /tmp/etcd-v{{ etcd_version }}.tar.gz
+    url: https://storage.googleapis.com/etcd/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz
+    force: yes
+  when: current_etcd_v.stdout != etcd_version
+
+- name: unarchive etcd binaries
+  unarchive: remote_src=yes src=/tmp/etcd-v{{ etcd_version }}.tar.gz dest=/tmp/
+  when: current_etcd_v.stdout != etcd_version
+
+- name: move etcd binaries to PATH
+  copy: remote_src=yes mode=0755 src=/tmp/etcd-v{{ etcd_version }}-linux-amd64/{{ item }} dest=/usr/local/bin/{{ item }}
+  with_items:
+  - etcd
+  - etcdctl
+  when: current_etcd_v.stdout != etcd_version
+
+# create certs for etcd
+- name: create etcd CSR
+  copy: src=etcd-csr.json dest=/etc/kubernetes/ssl/etcd-csr.json
+
+- name: create script to generate etcd certs
+  template: src=etcd-certs.sh.j2 dest=/etc/kubernetes/ssl/etcd-certs.sh mode=0755
+
+- name: generate etcd certs
+  shell: ./etcd-certs.sh
+  args:
+    chdir: /etc/kubernetes/ssl
+
+# etcd server
+- name: create /var/lib/etcd and /etc/etcd directories
+  file: dest={{ item }} state=directory recurse=yes
+  with_items:
+  - /etc/etcd
+  - /var/lib/etcd
+  
+- name: create scripts to check cluster state/health and join new nodes
+  template: src={{ item }}.j2 dest=/etc/etcd/{{ item }} mode=0755
+  with_items:
+  - node_join.sh
+  - cluster_state.sh
+  - cluster_health.sh
+  
+- name: create etcdctl wrapper script
+  template: src=etcdctl.sh.j2 dest=/usr/local/bin/etcdctl.sh mode=0755
+  
+- name: get cluster state (new or existing)
+  shell: /etc/etcd/cluster_state.sh
+  register: etcd_cluster_state
+  
+- debug: msg="etcd cluster state is '{{ etcd_cluster_state.stdout }}'"
+  run_once: true
+
+- name: create systemd etcd.service unit
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+  notify: restart_etcd
+  
+- name: join node to cluster and start etcd if required
+  shell: /etc/etcd/node_join.sh
+  when: etcd_cluster_state.stdout == "existing"
+
+- name: restart etcd service if required
+  meta: flush_handlers
+
+- name: check that etcd cluster is up
+  shell: /etc/etcd/cluster_health.sh
