@@ -1,12 +1,10 @@
-- name: install python
+- name: prepare
   hosts: all
   user: root
   gather_facts: no
-  tasks:
-  - raw: apt-get update -qq && apt-get install python -y
-    args:
-      executable: /bin/bash
-  
+  roles:
+  - kubernetes/prepare
+
 - name: basic
   hosts: all
   user: root
