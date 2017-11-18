@@ -24,6 +24,7 @@ etcd_initial_token: "initialtoken0987"
 calico_node_version: "v2.6.2"
 calico_cni_version: "v1.11.0"
 calico_kube_controllers_version: "v1.0.0"
+calicoctl_version: "v1.6.1"
 
 nginx_kube_api_proxy_version: "1.13.6"
 

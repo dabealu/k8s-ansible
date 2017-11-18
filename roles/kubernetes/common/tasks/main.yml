@@ -57,17 +57,18 @@
       {{ hostvars[host]['ansible_default_ipv4']['address'] }} {{ hostname }} {{ hostname }}.cluster.local {{ hostvars[host]['ansible_fqdn'] }}
       {% endfor %}
 
-- name: create directory /etc/kubernetes
+- name: create /etc/kubernetes directory
   file: path=/etc/kubernetes state=directory recurse=yes
 
 - name: script to get kubernetes component versions
   copy: src=component-version.sh dest=/etc/kubernetes/component-version.sh mode=0755
 
-- name: get cfssl
+- name: get cfssl and calicoctl
   get_url: dest=/usr/local/bin/{{ item.dest }} url={{ item.url }} mode=0755 force=yes
   with_items:
   - { dest: "cfssl", url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64" }
   - { dest: "cfssljson", url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64" }
+  - { dest: "calicoctl", url: "https://github.com/projectcalico/calicoctl/releases/download/{{ calicoctl_version }}/calicoctl" }
 
 - name: get current kubectl version
   shell: /etc/kubernetes/component-version.sh kubectl
