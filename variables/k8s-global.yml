@@ -4,8 +4,8 @@ gen_locales:
 - "ru_RU.UTF-8"
 
 timezone: "Europe/Moscow"
-ntp_server_main: "ntp.ubuntu.com"
-ntp_server_fallback: "0.de.pool.ntp.org"
+ntp_server_main: "0.ubuntu.pool.ntp.org"
+ntp_server_fallback: "1.ubuntu.pool.ntp.org"
 
 # kube proxy
 proxy_conntrack_max_per_core: 65536

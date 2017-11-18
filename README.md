@@ -1,19 +1,21 @@
 ## Deploy kubernetes multimaster cluster
 
 **Q:** Why this playbook exists, when there's already kubespray doing same thing ?  
-**A:** It's simpler and faster than kubespray, it doesn't support variety of different operation systems distributions, cloud providers or CNI plugins.  
-Primarily it's created for bare-metal deployment on ubuntu 16.04 with calico CNI, no cluster addons other than kube-dns are installed, no container runtimes other than docker supported (maybe CRI-O support later).  
-
-Component versions and some other settings can be found in `variables/k8s-global.yml`, don't forget to change `etcd_initial_token` here to something more secure.  
+**A:** It's a bit different, simpler and faster than kubespray, it doesn't support variety of different GNU/Linux distributions, cloud providers or CNI plugins.  
+Primarily it's created for bare-metal deployment on ubuntu 16.04 with calico CNI, no cluster addons other than kube-dns are installed, no container runtime other than docker supported (maybe CRI-O support later).  
+  
+Component versions and some other settings can be found in `variables/k8s-global.yml`, don't forget to change `etcd_initial_token` to something more secure.  
 To setup the cluster, edit `hosts` file and run:
 ```
 ansible-playbook -i hosts -u root kubernetes.yml
 ```
-It's recommended to keep quorum of etcd server nodes (`k8s_masters` inventory group), so consider 3 or 5 etcd nodes for production cluster.
+**Note:** during playbook execution, some tasks are performed exclusively on first node of `k8s_masters` group in inventory file, ensure that this node is available and works properly.  
+**Note 2:** to keep cluster working it's required to have quorum of etcd server nodes (`k8s_masters` inventory group), so consider 3, 5 or even 7 etcd nodes for production cluster.  
+In most cases 3 master nodes is enough - one node can fail and cluster still will be available.  
   
 
 ### Requirements
-Tested on bare-metal and KVM hosts with Ubuntu 16.04, but in theory can work on a later releases and other environments too.
+Tested on bare-metal and KVM hosts with Ubuntu 16.04, but in theory it can work on a later releases and other environments too.
   
 
 ### Removal of failed node
@@ -41,7 +43,7 @@ kubectl delete node k1
   
 
 ### Joining new nodes to cluster
-Simply add new node to the according groups in inventory file and rerun playbook.
+Simply add new node to the according groups in inventory file and rerun playbook.  
   
 
 ### Kube-apiserver proxy
