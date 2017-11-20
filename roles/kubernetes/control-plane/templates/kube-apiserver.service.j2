@@ -27,7 +27,6 @@ ExecStart=/usr/local/bin/kube-apiserver \
   --kubelet-client-key=/etc/kubernetes/ssl/kubernetes-key.pem \
   --kubelet-https=true \
   --runtime-config=admissionregistration.k8s.io/v1alpha1 \
-  --feature-gates=Initializers=true,PersistentLocalVolumes=true \
   --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem \
   --service-cluster-ip-range={{ service_cluster_ip }} \
   --service-node-port-range={{ service_node_port_range }} \
