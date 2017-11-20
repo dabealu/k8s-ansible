@@ -6,6 +6,9 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/etcd \
   --name={{ ansible_hostname }} \
+  --election-timeout=10000 \
+  --heartbeat-interval=500 \
+  --auto-compaction-retention=8 \
   --cert-file=/etc/kubernetes/ssl/etcd.pem \
   --key-file=/etc/kubernetes/ssl/etcd-key.pem \
   --peer-cert-file=/etc/kubernetes/ssl/etcd.pem \
