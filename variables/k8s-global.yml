@@ -1,5 +1,5 @@
 # common
-gen_locales: 
+gen_locales:
 - "en_US.UTF-8"
 - "ru_RU.UTF-8"
 
@@ -18,7 +18,7 @@ docker_storage_driver: "overlay2" #"aufs"
 kubernetes_version: "1.8.3"
 docker_version: "17.03"
 
-etcd_version: "3.2.9"
+etcd_version: "3.2.4"
 etcd_initial_token: "initialtoken0987"
 
 calico_node_version: "v2.6.2"
