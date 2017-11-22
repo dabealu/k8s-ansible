@@ -18,7 +18,7 @@ docker_storage_driver: "overlay2" #"aufs"
 kubernetes_version: "1.8.3"
 docker_version: "17.03"
 
-etcd_version: "3.2.4"
+etcd_version: "3.2.9"
 etcd_initial_token: "initialtoken0987"
 
 calico_node_version: "v2.6.2"
@@ -37,3 +37,9 @@ cluster_dns: "10.1.0.3"
 kubernetes_svc_ip: "10.1.0.1"
 service_node_port_range: "30000-32767"
 kube_api_proxy_port: 9090
+
+# misc
+## if not empty, etcd snapshots created periodically
+etcd_snapshot_schedule: "*/30 * * * *"
+## maximum number of stored snapshots
+etcd_snapshot_keep: "10"

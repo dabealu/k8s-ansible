@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+SNAP_DIR=/var/lib/etcd/backup
+mkdir -p $SNAP_DIR
+chmod 700 $SNAP_DIR
+cd $SNAP_DIR
+
+# create snapshot
+/usr/local/bin/etcdctl.sh snapshot save $(date "+%d%m%y-%H%M%S-%N").snap
+
+# remove old snapshots, keep {{ etcd_snapshot_keep }} latest
+OLD_SNAP=$(ls -t | tail -n +{{ etcd_snapshot_keep | int + 1 }})
+rm -f $OLD_SNAP

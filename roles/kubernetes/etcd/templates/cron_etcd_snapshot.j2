@@ -1,0 +1,5 @@
+# create etcd snapshots in /var/lib/etcd/backup
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+{{ etcd_snapshot_schedule }} root /etc/etcd/create_snapshot.sh
