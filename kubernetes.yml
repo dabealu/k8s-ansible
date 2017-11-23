@@ -12,6 +12,7 @@
   - variables/k8s-global.yml
   roles:
   - kubernetes/common
+  - kubernetes/firewall
   - kubernetes/docker
   - kubernetes/ca
   - kubernetes/api-proxy

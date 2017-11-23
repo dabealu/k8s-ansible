@@ -70,7 +70,7 @@
   - { dest: "cfssljson", url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64" }
 
 # - name: get calicoctl
-#   get_url: 
+#   get_url:
 #     dest: /usr/local/bin/calicoctl
 #     url: https://github.com/projectcalico/calicoctl/releases/download/{{ calicoctl_version }}/calicoctl
 #     mode: 0755
