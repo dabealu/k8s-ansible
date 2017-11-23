@@ -1,0 +1,5 @@
+- name: daemon_reload
+  systemd: daemon_reload=yes
+
+- name: restart_kube_firewall
+  systemd: name=kube-firewall state=restarted enabled=yes

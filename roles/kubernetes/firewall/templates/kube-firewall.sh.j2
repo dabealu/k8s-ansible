@@ -1,0 +1,77 @@
+#!/bin/bash
+
+### start
+function kubefw-start() {
+set -e
+echo "  Creating firewall rules..."
+{% for app in firewall_ports %}
+{% set app_name = app['name'] %}
+{% set app_port = app['port'] %}
+{% set chain = 'KUBE-FW-' + (app_name | upper) %}
+## BEGIN {{ app_name }} {{ app_port }}
+echo "creating chain: {{ chain }}"
+iptables -N {{ chain }}
+echo "creating rule: INPUT to {{ chain }}"
+iptables -A INPUT -j {{ chain }}
+
+# {{ app_name }} cluster hosts
+{% for host in groups['all'] %}
+{% set hostname = hostvars[host]['ansible_hostname'] %}
+{% set ip = hostvars[host]['ansible_default_ipv4']['address'] %}
+echo "creating rule: {{ chain }} accept from {{ ip }} to :{{ app_port }}"
+iptables -A {{ chain }} -p tcp -m tcp -s {{ ip }} --dport {{ app_port }} -j ACCEPT -m comment --comment "{{ app_name }} {{ hostname }}"
+{% endfor %}
+
+# {{ app_name }} pods subnet
+echo "creating rule: {{ chain }} accept from {{ cluster_cidr }} to :{{ app_port }}"
+iptables -A {{ chain }} -p tcp -m tcp -s {{ cluster_cidr }} --dport {{ app_port }} -j ACCEPT -m comment --comment "{{ app_name }} pods subnet"
+
+# {{ app_name }} allowed hosts
+{% for ip in firewall_allowed_hosts %}
+echo "creating rule: {{ chain }} accept from {{ ip }} to :{{ app_port }}"
+iptables -A {{ chain }} -p tcp -m tcp -s {{ ip }} --dport {{ app_port }} -j ACCEPT -m comment --comment "{{ app_name }} allowed hosts"
+{% endfor %}
+
+# {{ app_name }} drop
+echo "creating rule: {{ chain }} drop all unmatched connections to :{{ app_port }}"
+iptables -A {{ chain }} -p tcp --dport {{ app_port }} -j DROP
+## END {{ app_name }} {{ app_port }}
+
+{% endfor %}
+echo "  Creation completed."
+}
+
+
+### stop
+function kubefw-stop() {
+echo "  Removing previously created rules..."
+{% for app in firewall_ports %}
+{% set app_name = app['name'] %}
+{% set app_port = app['port'] %}
+{% set chain = 'KUBE-FW-' + (app_name | upper) %}
+## BEGIN {{ app_name }} {{ app_port }}
+echo "flushing rules: chain {{ chain }}"
+iptables -F {{ chain }}
+echo "deleting rule: INPUT to {{ chain }}"
+iptables -D INPUT -j {{ chain }}
+echo "deleting chain {{ chain }}"
+iptables -X {{ chain }}
+## END {{ app_name }} {{ app_port }}
+
+{% endfor %}
+echo "  Removal completed."
+}
+
+
+### main
+if [[ "${1}" == "start" ]]; then
+  kubefw-start
+elif [[ "${1}" == "stop" ]]; then
+  kubefw-stop
+elif [[ "${1}" == "restart" ]]; then
+  kubefw-stop
+  kubefw-start
+else
+  echo "Error: first arg must be 'start', 'stop' or 'restart'."
+  exit 1
+fi

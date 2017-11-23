@@ -1,0 +1,17 @@
+[Unit]
+Description=set of firewall rules to secure kubernetes
+DefaultDependencies=no
+Before=network.target
+Wants=systemd-modules-load.service local-fs.target
+After=systemd-modules-load.service local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/kube-firewall.sh start
+ExecStartPre=-/usr/sbin/kube-firewall.sh stop
+ExecStop=/usr/sbin/kube-firewall.sh stop
+ExecReload=/usr/sbin/kube-firewall.sh restart
+
+[Install]
+WantedBy=multi-user.target

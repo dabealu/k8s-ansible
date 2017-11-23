@@ -1,0 +1,13 @@
+- name: create kube-firewall.service systemd unit
+  copy: src=kube-firewall.service dest=/etc/systemd/system/kube-firewall.service
+  notify:
+  - daemon_reload
+  - restart_kube_firewall
+
+- name: create kube-firewall.sh executable script
+  template: src=kube-firewall.sh.j2 dest=/usr/sbin/kube-firewall.sh mode=755
+  notify:
+  - restart_kube_firewall
+
+- name: apply kube-firewall rules
+  meta: flush_handlers
