@@ -26,6 +26,10 @@ iptables -A {{ chain }} -p tcp -m tcp -s {{ ip }} --dport {{ app_port }} -j ACCE
 echo "creating rule: {{ chain }} accept from {{ cluster_cidr }} to :{{ app_port }}"
 iptables -A {{ chain }} -p tcp -m tcp -s {{ cluster_cidr }} --dport {{ app_port }} -j ACCEPT -m comment --comment "{{ app_name }} pods subnet"
 
+# {{ app_name }} loopback
+echo "creating rule: {{ chain }} accept from 127.0.0.0/8 to :{{ app_port }}"
+iptables -A {{ chain }} -p tcp -m tcp -s 127.0.0.0/8 --dport {{ app_port }} -j ACCEPT -m comment --comment "{{ app_name }} loopback subnet"
+
 # {{ app_name }} allowed hosts
 {% for ip in firewall_allowed_hosts %}
 echo "creating rule: {{ chain }} accept from {{ ip }} to :{{ app_port }}"
