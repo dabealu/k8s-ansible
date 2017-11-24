@@ -14,7 +14,6 @@ ExecStart=/usr/local/bin/kubelet \
   --authorization-mode=Webhook \
   --client-ca-file=/etc/kubernetes/ssl/ca.pem \
   --pod-manifest-path=/etc/kubernetes/manifests \
-  --pod-infra-container-image=gcr.io/google_containers/pause-amd64:3.0 \
   --kube-reserved cpu=100m,memory=512M \
   --node-status-update-frequency=10s \
   --cgroups-per-qos=True \
