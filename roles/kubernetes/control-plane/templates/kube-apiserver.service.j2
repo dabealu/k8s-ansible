@@ -36,6 +36,7 @@ ExecStart=/usr/local/bin/kube-apiserver \
 
 Restart=always
 RestartSec=5
+LimitNOFILE=30000
 
 [Install]
 WantedBy=multi-user.target

@@ -18,6 +18,7 @@
   - unattended-upgrades
   - python-pip
   - python-apt
+  - lsof
   - rsync
 
 - name: gen locale(s)
