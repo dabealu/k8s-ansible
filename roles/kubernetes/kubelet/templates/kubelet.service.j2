@@ -28,6 +28,7 @@ ExecStart=/usr/local/bin/kubelet \
   {% endif -%}
   --network-plugin=cni \
   --cni-bin-dir=/opt/cni/bin \
+  --cni-conf-dir=/etc/cni/net.d \
   --tls-cert-file=/etc/kubernetes/ssl/kubelet.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/kubelet-key.pem
 
