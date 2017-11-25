@@ -1,0 +1,38 @@
+- name: create directories
+  file: path={{ item }} state=directory recurse=yes
+  with_files:
+  - /opt/cni/bin
+  - /etc/cni/net.d
+
+- name: get calico cni plugins
+  get_url:
+    dest: /opt/cni/bin/{{ item }}
+    url: https://github.com/projectcalico/cni-plugin/releases/download/{{ calico_cni_version }}/{{ item }}
+    mode: 0755
+    force: yes
+  with_items:
+  - calico
+  - calico-ipam
+
+- name: create cni config
+  tempalte: src=10-calico.conf.j2 dest=/etc/cni/net.d/10-calico.conf
+  
+- name: get standard cni plugins tarball
+  get_url:
+    dest: /tmp/cni-{{ cni_plugins_version }}.tgz
+    url: https://github.com/containernetworking/cni/releases/download/{{ cni_plugins_version }}/cni-{{ cni_plugins_version }}.tgz
+    force: yes
+
+- name: unarchive cni plugins binaries
+  unarchive: remote_src=yes src=/tmp/cni-{{ cni_plugins_version }}.tgz dest=/tmp/
+
+- name: move loopback plugin binary to PATH
+  copy: remote_src=yes mode=0755 src=/tmp/loopback dest=/opt/cni/bin/loopback
+
+- name: create calico-node systemd service
+  template: src=calico-node.service.j2 dest=/etc/systemd/system/calico-node.service
+  notify:
+  - daemon_reload
+  - restart_calico_node
+
+### calico k8s controllers are missing 

@@ -16,6 +16,7 @@
   - kubernetes/docker
   - kubernetes/ca
   - kubernetes/api-proxy
+  - kubernetes/etcd-certs
 
 - name: k8s master
   hosts: k8s_masters

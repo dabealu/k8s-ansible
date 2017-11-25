@@ -1,0 +1,5 @@
+- name: daemon_reload
+  systemd: daemon_reload=yes
+  
+- name: restart_calico_node
+  systemd: name=calico-node state=restarted

@@ -1,0 +1,11 @@
+# create etcd certs
+- name: create etcd CSR
+  copy: src=etcd-csr.json dest=/etc/kubernetes/ssl/etcd-csr.json
+
+- name: create script to generate etcd certs
+  template: src=etcd-certs.sh.j2 dest=/etc/kubernetes/ssl/etcd-certs.sh mode=0755
+
+- name: generate etcd certs
+  shell: ./etcd-certs.sh
+  args:
+    chdir: /etc/kubernetes/ssl

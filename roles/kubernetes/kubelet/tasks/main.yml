@@ -3,8 +3,6 @@
   with_items:
   - /var/lib/kubelet
   - /etc/kubernetes/manifests
-  - /etc/cni/net.d
-  - /opt/cni/bin
 
 - name: create kubelet and kube-proxy CSRs
   template: src={{ item }}.j2 dest=/etc/kubernetes/ssl/{{ item }}

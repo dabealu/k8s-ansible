@@ -1,0 +1,20 @@
+{
+  "name": "calico-k8s-network",
+  "cniVersion": "0.1.0",
+  "hostname": {{ ansible_host }},
+  "type": "calico",
+  "etcd_endpoints": "{% for host in groups['k8s_masters'] %}https://{{ hostvars[host]['ansible_default_ipv4']['address'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}",
+  "etcd_cert_file": "/etc/kubernetes/ssl/etcd.pem",
+  "etcd_key_file": "/etc/kubernetes/ssl/etcd-key.pem",
+  "etcd_ca_cert_file": "/etc/kubernetes/ssl/ca.pem",
+  "log_level": "info",
+  "ipam": {
+    "type": "calico-ipam"
+  },
+  "policy": {
+    "type": "k8s"
+  },
+  "kubernetes": {
+    "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+  }
+}
