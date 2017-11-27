@@ -6,3 +6,8 @@
 
 - name: restart_journald
   systemd: name=systemd-journald state=restarted
+
+- name: sysctl_disable_ipv6
+  shell: sysctl -p /etc/sysctl.d/99-disable-ipv6.conf
+  args:
+    executable: /bin/bash

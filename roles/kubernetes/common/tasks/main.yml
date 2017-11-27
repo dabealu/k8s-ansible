@@ -47,6 +47,10 @@
     umount $(grep swap /etc/fstab | awk '{print $1}') || true &&\
     sed 's/^[^#]\(.*\)swap\(.*\)$/#\1swap\2/g' -i /etc/fstab
 
+- name: disable ipv6
+  copy: src=99-disable-ipv6.conf dest=/etc/sysctl.d/99-disable-ipv6.conf
+  notify: sysctl_disable_ipv6
+
 - name: add all cluster nodes to /etc/hosts
   blockinfile:
     path: /etc/hosts
