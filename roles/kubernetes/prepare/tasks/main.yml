@@ -1,13 +1,12 @@
 - name: get python package status
-  raw: dpkg-query -W --showformat='${db:Status-Status}' python
+  raw: dpkg -l python
   args:
     executable: /bin/bash
+  ignore_errors: yes
   register: python_pkg_stat
-
-- debug: msg={{ python_pkg_stat.stdout }}
 
 - name: install python
   raw: apt-get update -qq && apt-get install python -y
   args:
     executable: /bin/bash
-  when: python_pkg_stat.stdout == "not-installed"
+  when: python_pkg_stat.rc != 0
