@@ -1,0 +1,22 @@
+- name: install common packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+  - apt-transport-https
+  - bash-completion
+  - ca-certificates
+  - conntrack
+  - curl
+  - software-properties-common
+  - socat
+  - vim
+  - tree
+  - tmux
+  - wget
+  - iotop
+  - iftop
+  - htop
+  - unattended-upgrades
+  - python-pip
+  - python-apt
+  - lsof
+  - rsync

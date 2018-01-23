@@ -1,0 +1,19 @@
+- name: add docker repo
+  yum_repository: 
+    name: docker-ce-stable
+    description: Docker CE Stable 
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: install docker
+  yum: name=docker-ce state=present
+
+- name: create /etc/docker dir
+  file: path=/etc/docker state=directory mode=0755
+
+- name: adjust docker config
+  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
+  notify: 
+  - restart_docker
+
+- meta: flush_handlers

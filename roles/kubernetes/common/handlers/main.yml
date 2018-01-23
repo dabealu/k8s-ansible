@@ -1,5 +1,10 @@
 - name: restart_timesyncd
-  systemd: name=systemd-timesyncd state=restarted
+  systemd: name=systemd-timesyncd state=restarted enabled=yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: restart_timedated
+  systemd: name=systemd-timedated state=restarted enabled=yes
+  when: ansible_distribution == "CentOS"
 
 - name: restart_cron
   systemd: name=cron state=restarted

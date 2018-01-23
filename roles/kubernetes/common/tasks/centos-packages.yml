@@ -1,0 +1,27 @@
+- name: install epel-releases
+  yum: name=epel-release state=present
+
+- name: install common packages
+  yum: name={{ item }} state=present
+  with_items:
+  - bash-completion
+  - ca-certificates
+  - conntrack
+  - curl
+  - socat
+  - vim
+  - tree
+  - wget
+  - python-pip
+  - lsof
+  - rsync
+  - yum-utils 
+  - device-mapper-persistent-data
+  - lvm2
+  - iptables-services
+
+- name: disable firewalld and enable iptables
+  systemd: name={{ item.name }} state={{ item.state }} enabled={{ item.enabled }}
+  with_items:
+  - { name: "firewalld", state: "stopped", enabled: "no" } 
+  - { name: "iptables", state: "started", enabled: "yes"}

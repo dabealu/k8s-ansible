@@ -1,13 +1,7 @@
-- name: add docker gpg key
-  apt_key: url=https://download.docker.com/linux/ubuntu/gpg state=present
-  
-- name: add docker repo
-  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable" state=present
-    
-- name: install docker
-  apt: name="docker-ce={{ docker_version }}*" state=present update_cache=yes
+- name: ubuntu docker install
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
 
-- name: adjust docker config
-  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
-  notify: 
-  - restart_docker
+- name: centos docker install
+  include_tasks: centos.yml
+  when: ansible_distribution == "CentOS"
