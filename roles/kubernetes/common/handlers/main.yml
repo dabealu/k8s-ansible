@@ -9,6 +9,9 @@
 - name: restart_cron
   systemd: name=cron state=restarted
 
+- name: restart_crond
+  systemd: name=crond state=restarted
+
 - name: restart_journald
   systemd: name=systemd-journald state=restarted
 

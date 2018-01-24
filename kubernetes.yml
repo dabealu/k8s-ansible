@@ -1,9 +1,9 @@
-- name: prepare
-  hosts: all
-  user: root
-  gather_facts: no
-  roles:
-  - kubernetes/prepare
+# - name: prepare
+#   hosts: all
+#   user: root
+#   gather_facts: no
+#   roles:
+#   - kubernetes/prepare
 
 - name: basic
   hosts: all

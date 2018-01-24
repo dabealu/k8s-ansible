@@ -20,6 +20,13 @@
   timezone: name={{ timezone }}
   notify:
   - restart_cron
+  when: ansible_distribution == "Ubuntu"
+
+- name: set timezone to {{ timezone }}
+  timezone: name={{ timezone }}
+  notify:
+  - restart_crond
+  when: ansible_distribution == "CentOS"
 
 - name: sync time with ntp
   template: src=timesyncd.conf.j2 dest=/etc/systemd/timesyncd.conf
