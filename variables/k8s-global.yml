@@ -15,7 +15,7 @@ proxy_conntrack_min: 131072
 docker_storage_driver: "overlay2" #"aufs"
 
 # versions
-kubernetes_version: "1.8.3"
+kubernetes_version: "1.8.7"
 docker_version: "17.03"
 
 etcd_version: "3.2.4"
