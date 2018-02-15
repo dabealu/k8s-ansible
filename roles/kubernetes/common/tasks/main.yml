@@ -20,6 +20,7 @@
   - python-apt
   - lsof
   - rsync
+  - nfs-common
 
 - name: gen locale(s)
   locale_gen: name={{ item }} state=present
