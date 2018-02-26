@@ -22,6 +22,9 @@
   - rsync
   - nfs-common
 
+- name: disable and stop rpcbind service
+  systemd: name=rpcbind state=stopped enabled=no
+
 - name: gen locale(s)
   locale_gen: name={{ item }} state=present
   with_items:
