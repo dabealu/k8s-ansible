@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+/usr/local/bin/hyperkube kubectl $@

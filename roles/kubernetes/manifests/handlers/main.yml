@@ -2,9 +2,9 @@
   shell: |
     TIMEOUT=0
     until kubectl apply -f /etc/kubernetes/calico-rbac.yaml; do
-      if [[ "$TIMEOUT" -lt "90" ]]; then
+      if [[ "$TIMEOUT" -lt "180" ]]; then
         sleep 2
-        TIMEOUT=$(($TIMEOUT+1))
+        TIMEOUT=$(($TIMEOUT+2))
       else
         exit 1
       fi

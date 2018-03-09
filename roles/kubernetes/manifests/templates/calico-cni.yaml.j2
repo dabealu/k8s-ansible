@@ -1,9 +1,9 @@
 ---
 # https://docs.projectcalico.org/master/getting-started/kubernetes/installation/hosted/hosted
 # This manifest includes the following component versions:
-#   calico/node:{{ calico_node_version }}
-#   calico/cni:{{ calico_cni_version }}
-#   calico/kube-controllers:{{ calico_kube_controllers_version }}
+#   calico/node:v{{ calico_node_version }}
+#   calico/cni:v{{ calico_cni_version }}
+#   calico/kube-controllers:v{{ calico_kube_controllers_version }}
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -99,7 +99,7 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: quay.io/calico/node:{{ calico_node_version }}
+          image: quay.io/calico/node:v{{ calico_node_version }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -190,7 +190,7 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: quay.io/calico/cni:{{ calico_cni_version }}
+          image: quay.io/calico/cni:v{{ calico_cni_version }}
           command: ["/install-cni.sh"]
           env:
             # The location of the Calico etcd cluster.
@@ -265,7 +265,7 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          image: quay.io/calico/kube-controllers:{{ calico_kube_controllers_version }}
+          image: quay.io/calico/kube-controllers:v{{ calico_kube_controllers_version }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -327,7 +327,7 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-policy-controller
-          image: quay.io/calico/kube-controllers:{{ calico_kube_controllers_version }}
+          image: quay.io/calico/kube-controllers:v{{ calico_kube_controllers_version }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS

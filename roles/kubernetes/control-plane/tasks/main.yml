@@ -1,25 +1,3 @@
-- name: get current kube-apiserver version
-  shell: /etc/kubernetes/component-version.sh kube-apiserver
-  register: current_kube_apiserver_v
-
-- debug: msg="current_kube_apiserver_v={{ current_kube_apiserver_v.stdout }}"
-
-- name: get control plane binaries
-  get_url: 
-    dest: /usr/local/bin/{{ item }} 
-    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/{{ item }} 
-    mode: 0755
-    force: yes
-  with_items:
-  - kube-apiserver
-  - kube-scheduler
-  - kube-controller-manager
-  notify:
-  - restart_apiserver
-  - restart_scheduler
-  - restart_controller_manager
-  when: current_kube_apiserver_v.stdout != kubernetes_version
-
 - name: create kube-apiserver.service systemd unit
   template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   notify: restart_apiserver
