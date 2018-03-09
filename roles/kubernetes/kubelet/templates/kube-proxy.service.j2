@@ -1,9 +1,9 @@
 [Unit]
-Description=Kubernetes Kube Proxy
+Description=Kubernetes kube-proxy v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
-ExecStart=/usr/local/bin/kube-proxy --config=/etc/kubernetes/kube-proxy.yaml
+ExecStart=/usr/local/bin/hyperkube proxy --config=/etc/kubernetes/kube-proxy.yaml
 
 Restart=always
 RestartSec=5s

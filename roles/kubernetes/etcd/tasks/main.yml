@@ -3,7 +3,7 @@
   shell: /etc/kubernetes/component-version.sh etcd
   register: current_etcd_v
 
-- debug: msg="current_etcd_v={{ current_etcd_v.stdout }}"
+- debug: msg="current etcd version = {{ current_etcd_v.stdout }}"
 
 - name: get etcd tarball
   get_url:

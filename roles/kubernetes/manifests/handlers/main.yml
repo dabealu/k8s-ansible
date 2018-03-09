@@ -1,19 +1,18 @@
 - name: apply_calico_rbac
-  shell: |
-    TIMEOUT=0
-    until kubectl apply -f /etc/kubernetes/calico-rbac.yaml; do
-      if [[ "$TIMEOUT" -lt "90" ]]; then
-        sleep 2
-        TIMEOUT=$(($TIMEOUT+1))
-      else
-        exit 1
-      fi
-    done
+  shell: kubectl apply -f /etc/kubernetes/calico-rbac.yaml
+  register: result
+  until: result.rc == 0
+  retries: 24
+  delay: 5
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
 
 - name: apply_calico_deploy
   shell: kubectl apply -f /etc/kubernetes/calico-cni.yaml
+  register: result
+  until: result.rc == 0
+  retries: 24
+  delay: 5
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
 

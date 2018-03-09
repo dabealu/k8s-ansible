@@ -1,9 +1,9 @@
 [Unit]
-Description=Kubernetes API Server
+Description=Kubernetes API server v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
-ExecStart=/usr/local/bin/kube-apiserver \
+ExecStart=/usr/local/bin/hyperkube apiserver \
   --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds \
   --advertise-address={{ ansible_default_ipv4.address }} \
   --allow-privileged=true \

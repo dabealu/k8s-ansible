@@ -1,11 +1,11 @@
 [Unit]
-Description=Kubernetes Kubelet
+Description=Kubernetes kubelet v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
 After=docker.service
 Wants=docker.socket
 
 [Service]
-ExecStart=/usr/local/bin/kubelet \
+ExecStart=/usr/local/bin/hyperkube kubelet \
   --v=2 \
   --address=0.0.0.0 \
   --hostname-override={{ ansible_hostname }} \

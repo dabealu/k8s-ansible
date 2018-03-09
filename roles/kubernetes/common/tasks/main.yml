@@ -69,35 +69,48 @@
 - name: create /etc/kubernetes directory
   file: path=/etc/kubernetes state=directory recurse=yes
 
-- name: script to get kubernetes component versions
+- name: create script to get component versions
   copy: src=component-version.sh dest=/etc/kubernetes/component-version.sh mode=0755
+
+- name: get current cfssl version
+  shell: /etc/kubernetes/component-version.sh cfssl
+  register: current_cfssl_version
 
 - name: get cfssl
   get_url: dest=/usr/local/bin/{{ item.dest }} url={{ item.url }} mode=0755 force=yes
   with_items:
-  - { dest: "cfssl", url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64" }
-  - { dest: "cfssljson", url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64" }
+  - { dest: "cfssl", url: "https://pkg.cfssl.org/R{{ cfssl_version }}/cfssl_linux-amd64" }
+  - { dest: "cfssljson", url: "https://pkg.cfssl.org/R{{ cfssl_version }}/cfssljson_linux-amd64" }
+  when: current_cfssl_version.stdout != cfssl_version
 
-# - name: get calicoctl
-#   get_url:
-#     dest: /usr/local/bin/calicoctl
-#     url: https://github.com/projectcalico/calicoctl/releases/download/{{ calicoctl_version }}/calicoctl
-#     mode: 0755
-#     force: yes
+- name: get current calicoctl version
+  shell: /etc/kubernetes/component-version.sh calicoctl
+  register: current_calicoctl_version
 
-- name: get current kubectl version
-  shell: /etc/kubernetes/component-version.sh kubectl
-  register: current_kubectl_v
-
-- debug: msg="current_kubectl_v={{ current_kubectl_v.stdout }}"
-
-- name: get kubectl
+- name: get calicoctl
   get_url:
-    dest: /usr/local/bin/kubectl
-    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/calicoctl
+    url: https://github.com/projectcalico/calicoctl/releases/download/v{{ calicoctl_version }}/calicoctl
     mode: 0755
     force: yes
-  when: current_kubectl_v.stdout != kubernetes_version
+  when: current_calicoctl_version.stdout != calicoctl_version
+
+- name: get current kubernetes version
+  shell: /etc/kubernetes/component-version.sh kubernetes
+  register: current_kubernetes_version
+
+- debug: msg="kubernetes version, current {{ current_kubernetes_version.stdout }}, desired {{ kubernetes_version }}"
+
+- name: get hyperkube
+  get_url:
+    dest: /usr/local/bin/hyperkube
+    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/hyperkube
+    mode: 0755
+    force: yes
+  when: current_kubernetes_version.stdout != kubernetes_version
+
+- name: create hyperkube kubectl wrapper script
+  copy: src=kubectl-wrapper dest=/usr/local/bin/kubectl mode=0755
 
 - name: enable kubectl bash completion
   shell: kubectl completion bash > /etc/bash_completion.d/kubectl

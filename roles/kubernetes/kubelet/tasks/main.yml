@@ -43,35 +43,6 @@
   args:
     chdir: /etc/kubernetes
 
-- name: get current kubelet version
-  shell: /etc/kubernetes/component-version.sh kubelet
-  register: current_kubelet_v
-
-- name: get current kube-proxy version
-  shell: /etc/kubernetes/component-version.sh kube-proxy
-  register: current_kube_proxy_v
-
-- debug: msg="current_kubelet_v={{ current_kubelet_v.stdout }}"
-- debug: msg="current_kube_proxy_v={{ current_kube_proxy_v.stdout }}"
-
-- name: get kubelet binary
-  get_url: 
-    dest: /usr/local/bin/kubelet
-    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kubelet 
-    mode: 0755
-    force: yes
-  notify: restart_kubelet
-  when: current_kubelet_v.stdout != kubernetes_version
-  
-- name: get kube-proxy binary
-  get_url: 
-    dest: /usr/local/bin/kube-proxy
-    url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/kube-proxy 
-    mode: 0755
-    force: yes
-  notify: restart_kube_proxy
-  when: current_kube_proxy_v.stdout != kubernetes_version
-
 - name: create kubelet.service systemd unit
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
   notify: restart_kubelet
