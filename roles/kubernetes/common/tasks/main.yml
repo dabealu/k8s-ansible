@@ -69,7 +69,7 @@
 - name: create /etc/kubernetes directory
   file: path=/etc/kubernetes state=directory recurse=yes
 
-- name: script to get component versions
+- name: create script to get component versions
   copy: src=component-version.sh dest=/etc/kubernetes/component-version.sh mode=0755
 
 - name: get current cfssl version
@@ -101,7 +101,7 @@
 
 - debug: msg="kubernetes version, current {{ current_kubernetes_version.stdout }}, desired {{ kubernetes_version }}"
 
-- name: get hyperkube binary
+- name: get hyperkube
   get_url:
     dest: /usr/local/bin/hyperkube
     url: https://storage.googleapis.com/kubernetes-release/release/v{{ kubernetes_version }}/bin/linux/amd64/hyperkube
