@@ -9,6 +9,10 @@
 
 - name: apply_calico_deploy
   shell: kubectl apply -f /etc/kubernetes/calico-cni.yaml
+  register: result
+  until: result.rc == 0
+  retries: 24
+  delay: 5
   delegate_to: "{{ groups.k8s_masters[0] }}"
   run_once: true
 
