@@ -43,15 +43,17 @@ kube_api_proxy_port: 9090
 
 # misc
 ## if not empty, etcd snapshots created periodically
-etcd_snapshot_schedule: "*/30 * * * *"
+etcd_snapshot_schedule: "0 */6 * * *"
 ## maximum number of stored snapshots
-etcd_snapshot_keep: "10"
+etcd_snapshot_keep: "20"
 
 # firewall
 ## block access from outside to insecure k8s ports via kube-firewall.service
 firewall_ports:
 - { "name": "kubelet-cadvisor", "port": "4194" }
 - { "name": "kubelet-ro", "port": "10255" }
+- { "name": "kube-ctrl-mgr", "port": "10252" }
+- { "name": "kube-scheduler", "port": "10251" }
 - { "name": "node-exporter", "port": "9100" }
 
 ## additional IP adresses which are not blocked by firewall

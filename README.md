@@ -65,4 +65,5 @@ iptables -t mangle -F
 iptables -F
 iptables -X
 systemctl start kube-proxy.service
+systemctl restart kube-firewall
 ```
