@@ -15,7 +15,7 @@ echo "creating rule: INPUT to {{ chain }}"
 iptables -A INPUT -j {{ chain }}
 
 # {{ app_name }} cluster hosts
-{% for host in groups['all'] %}
+{% for host in (groups['k8s_masters'] | union(groups['k8s_workers'])) %}
 {% set hostname = hostvars[host]['ansible_hostname'] %}
 {% set ip = hostvars[host]['ansible_default_ipv4']['address'] %}
 echo "creating rule: {{ chain }} accept from {{ ip }} to :{{ app_port }}"

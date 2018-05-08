@@ -61,7 +61,7 @@
     insertafter: EOF
     marker: "# {mark} k8s cluster hosts"
     block: |
-      {% for host in groups['all'] %}
+      {% for host in (groups['k8s_masters'] | union(groups['k8s_workers'])) %}
       {% set hostname = hostvars[host]['ansible_hostname'] %}
       {{ hostvars[host]['ansible_default_ipv4']['address'] }} {{ hostname }} {{ hostname }}.cluster.local {{ hostvars[host]['ansible_fqdn'] }}
       {% endfor %}

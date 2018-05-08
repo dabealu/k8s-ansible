@@ -1,12 +1,16 @@
-- name: prepare
-  hosts: all
+- name: k8s prepare
+  hosts:
+  - k8s_masters
+  - k8s_workers
   user: root
   gather_facts: no
   roles:
   - kubernetes/prepare
 
-- name: basic
-  hosts: all
+- name: k8s basic
+  hosts:
+  - k8s_masters
+  - k8s_workers
   user: root
   vars_files:
   - variables/k8s-global.yml
