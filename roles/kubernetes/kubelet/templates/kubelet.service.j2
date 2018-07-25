@@ -1,3 +1,4 @@
+#jinja2:lstrip_blocks: True
 [Unit]
 Description=Kubernetes kubelet v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
@@ -6,7 +7,6 @@ Wants=docker.socket
 
 [Service]
 ExecStart=/usr/local/bin/hyperkube kubelet \
-  --v=2 \
   --address=0.0.0.0 \
   --hostname-override={{ ansible_hostname }} \
   --allow-privileged=true \
@@ -21,16 +21,22 @@ ExecStart=/usr/local/bin/hyperkube kubelet \
   --cluster-domain=cluster.local \
   --resolv-conf=/etc/resolv.conf \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  {% if ansible_hostname in groups['k8s_masters'] -%}
+  {% if ansible_hostname in groups['k8s_masters'] %}
   --node-labels=node-role.kubernetes.io/master=true,node-role.kubernetes.io/node=true \
-  {% else -%}
+  {% else %}
   --node-labels=node-role.kubernetes.io/node=true \
   {% endif -%}
   --network-plugin=cni \
   --cni-bin-dir=/opt/cni/bin \
   --cni-conf-dir=/etc/cni/net.d \
   --tls-cert-file=/etc/kubernetes/ssl/kubelet.pem \
-  --tls-private-key-file=/etc/kubernetes/ssl/kubelet-key.pem
+  --tls-private-key-file=/etc/kubernetes/ssl/kubelet-key.pem \
+  --v={{ verbosity }} {% if kubelet_custom_flags %}\
+  {% for f in kubelet_custom_flags %}
+  {{ f }} {% if not loop.last %}\
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
 Restart=always
 RestartSec=5s

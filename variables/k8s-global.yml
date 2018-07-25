@@ -41,6 +41,20 @@ kubernetes_svc_ip: "10.1.0.1"
 service_node_port_range: "30000-32767"
 kube_api_proxy_port: 9090
 
+## level of k8s components verbosity (--v flag)
+verbosity: 2
+
+## enabled admission controllers (value of API server's --admission-control)
+admission_control: "NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds"
+
+## list of additional flags for k8s components (format: --flag=value)
+apiserver_custom_flags:
+# - "--runtime-config=scheduling.k8s.io/v1alpha1=true"
+scheduler_custom_flags:
+controller_manager_custom_flags:
+kubelet_custom_flags:
+kube_proxy_custom_flags:
+
 # misc
 ## if not empty, etcd snapshots created periodically
 etcd_snapshot_schedule: "0 */6 * * *"

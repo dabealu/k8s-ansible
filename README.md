@@ -2,7 +2,7 @@
 
 **Q:** Why this playbook exists, when there's already kubespray doing same thing ?  
 **A:** It's a bit different, simpler and faster than kubespray, it doesn't support variety of different GNU/Linux distributions, cloud providers or CNI plugins.  
-Primarily it's created for bare-metal deployment on ubuntu 16.04 with calico CNI, no cluster addons other than kube-dns are installed, no container runtime other than docker supported (maybe CRI-O support later).  
+Primarily it's created for bare-metal deployment on ubuntu 16.04+ with calico CNI, no cluster addons other than kube-dns are installed, no container runtime other than docker supported (maybe CRI-O support later).  
 
 Component versions and some other settings can be found in `variables/k8s-global.yml`, don't forget to change `etcd_initial_token` to something more secure.  
 To setup the cluster, edit `hosts` file and run:
@@ -66,4 +66,10 @@ iptables -F
 iptables -X
 systemctl start kube-proxy.service
 systemctl restart kube-firewall
+```
+
+recreate `calico-node` pods:
+```
+kubectl delete po -n kube-system \
+    $(kubectl get po -n kube-system -l k8s-app=calico-node --no-headers | cut -f 1 -d ' ')
 ```

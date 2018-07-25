@@ -1,3 +1,4 @@
+#jinja2:lstrip_blocks: True
 [Unit]
 Description=Kubernetes controller-manager v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
@@ -17,7 +18,12 @@ ExecStart=/usr/local/bin/hyperkube controller-manager \
   --root-ca-file=/etc/kubernetes/ssl/ca.pem \
   --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem \
   --service-cluster-ip-range={{ service_cluster_ip }} \
-  --v=2
+  --v={{ verbosity }} {% if controller_manager_custom_flags %}\
+  {% for f in controller_manager_custom_flags %}
+  {{ f }} {% if not loop.last %}\
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
 Restart=always
 RestartSec=5
