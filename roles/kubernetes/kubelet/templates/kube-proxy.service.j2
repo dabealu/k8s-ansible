@@ -1,9 +1,16 @@
+#jinja2:lstrip_blocks: True
 [Unit]
 Description=Kubernetes kube-proxy v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
-ExecStart=/usr/local/bin/hyperkube proxy --config=/etc/kubernetes/kube-proxy.yaml
+ExecStart=/usr/local/bin/hyperkube proxy \
+  --config=/etc/kubernetes/kube-proxy.yaml {% if kube_proxy_custom_flags %}\
+  {% for f in kube_proxy_custom_flags %}
+  {{ f }} {% if not loop.last %}\
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
 Restart=always
 RestartSec=5s

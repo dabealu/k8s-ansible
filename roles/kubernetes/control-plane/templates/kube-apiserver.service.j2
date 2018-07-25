@@ -1,10 +1,11 @@
+#jinja2:lstrip_blocks: True
 [Unit]
 Description=Kubernetes API server v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
 ExecStart=/usr/local/bin/hyperkube apiserver \
-  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds \
+  --admission-control={{ admission_control }} \
   --advertise-address={{ ansible_default_ipv4.address }} \
   --allow-privileged=true \
   --apiserver-count={{ groups['k8s_masters'] | length }} \
@@ -32,7 +33,12 @@ ExecStart=/usr/local/bin/hyperkube apiserver \
   --tls-ca-file=/etc/kubernetes/ssl/ca.pem \
   --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
-  --v=2
+  --v={{ verbosity }} {% if apiserver_custom_flags %}\
+  {% for f in apiserver_custom_flags %}
+  {{ f }} {% if not loop.last %}\
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
 Restart=always
 RestartSec=5

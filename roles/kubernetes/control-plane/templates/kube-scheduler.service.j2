@@ -1,3 +1,4 @@
+#jinja2:lstrip_blocks: True
 [Unit]
 Description=Kubernetes scheduler v{{ kubernetes_version }}
 Documentation=https://github.com/kubernetes/kubernetes
@@ -6,7 +7,12 @@ Documentation=https://github.com/kubernetes/kubernetes
 ExecStart=/usr/local/bin/hyperkube scheduler \
   --leader-elect=true \
   --master=http://127.0.0.1:8080 \
-  --v=2
+  --v={{ verbosity }} {% if scheduler_custom_flags %}\
+  {% for f in scheduler_custom_flags %}
+  {{ f }} {% if not loop.last %}\
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
 Restart=always
 RestartSec=5
